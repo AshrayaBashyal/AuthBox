@@ -103,6 +103,7 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_TYPES": ("Bearer",),
+    "SIGNING_KEY": os.getenv("JWT_SIGNING_KEY", "dev-jwt-insecure-key")
 }
 
 # Password validation
