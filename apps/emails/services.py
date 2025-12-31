@@ -1,6 +1,6 @@
 from apps.auth.tokens import email_verification_token
+from django.core.mail import EmailMessage
 from django.conf import settings
-from django.core.mail import send_mail
 
 
 def build_verification_link(user):
@@ -9,10 +9,12 @@ def build_verification_link(user):
 
 def send_verification_email(user):
     link = build_verification_link(user)
-    send_mail(
-        "Verify Your Email",
-        f"Click here to verify your email: {link}",
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False
+
+    email = EmailMessage(
+        subject="Verify Your Email",
+        body=f"Click here to verify your email:\n\n{link}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
     )
+
+    email.send()
