@@ -19,6 +19,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -26,3 +27,30 @@ class ForgotPasswordSerializer(serializers.Serializer):
         if not User.objects.filter(email=value).exists():
             raise serializers.ValidationError("No user with this email exists!")
         return value
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    uid = serializers.IntegerField(write_only=True)
+    token = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate(self, data):
+        from apps.auth.tokens import password_reset_token
+        from .models import User
+
+        try:
+            user = User.objects.get(id=data["uid"])
+        except User.DoesNotExist:
+            raise serializers.ValidationError("No user with this ID exists!")
+
+        if not password_reset_token.check_token(user, data["token"]):
+            raise serializers.ValidationError("Invalid or expired token")
+
+        data["user"] = user
+
+        return data
+
+    def save(self):
+        user = self.validated_data["user"]
+        password = user.set_password(self.validated_data["new_password"])
+        user.save()
