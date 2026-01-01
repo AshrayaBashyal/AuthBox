@@ -18,3 +18,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             is_verified=False
         )
         return user
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("No user with this email exists!")
+        return value
