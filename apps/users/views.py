@@ -35,8 +35,8 @@ class ForgotPasswordView(APIView):
         serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_email = serializer.validated_data['email']
-        # send email later
-        # send_password_reset_email(user_email)
+        # send email
+        send_password_reset_email(user_email)
 
         return Response({"message": "Password reset link sent."})
 
