@@ -8,8 +8,8 @@ from .serializers import (
     ResetPasswordSerializer,
 )
 
-from apps.emails.services import send_verification_email, send_password_reset_email
-# from apps.emails.services import send_password_reset_email  # later
+from apps.emails.services import send_verification_email
+from apps.emails.services import send_password_reset_email
 
 
 class RegisterView(APIView):
