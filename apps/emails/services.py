@@ -7,9 +7,8 @@
 # Tried URL encoding, base64, EmailMessage vs EmailMultiAlternatives, HTML email, charset tweaks — nothing prevents corruption.
 # Nothing works. The 3D appears in the raw email source and corrupts the UID, causing the ValueError.
 # =========================================
-
-
-from apps.auth.tokens import email_verification_token
+from django.utils.http import urlencode
+from apps.auth.tokens import email_verification_token, password_reset_token
 from django.core.mail import EmailMessage
 from django.conf import settings
 
@@ -29,3 +28,23 @@ def send_verification_email(user):
     )
 
     email.send()
+
+
+def build_password_reset_link(user):
+    token = password_reset_token.make_token(user)
+    params = urlencode({"uid": user.id, "token": token})
+    return f"http://localhost:8000/api/auth/reset-password/?{params}"
+
+
+def send_password_reset_email(user):
+    link = build_password_reset_link(user)
+    email = EmailMessage(
+        subject="Reset Your Password",
+        body=f"Click here to reset your password:\n\n{link}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[user.email],
+    )
+    email.content_subtype = "plain"
+    print(" Password reset email (console):")
+    print(email.body)       # prints email to console
+    email.send()       # with console backend, this prints to terminal
